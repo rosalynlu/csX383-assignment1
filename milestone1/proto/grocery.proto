@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package grocery;
+
+// ------------------------------------------------------------
+// Enums required by Spr26_Specification
+// ------------------------------------------------------------
+
+// Type of request coming from Ordering to Inventory
+enum RequestType {
+  GROCERY_ORDER = 0;
+  RESTOCK_ORDER = 1;
+}
+
+// Reply status codes from Inventory back to Ordering
+enum ReplyCode {
+  OK = 0;
+  BAD_REQUEST = 1;
+}
+
+// ------------------------------------------------------------
+// Request and Reply messages
+// ------------------------------------------------------------
+
+// OrderRequest is sent by Ordering to Inventory
+message OrderRequest {
+  RequestType request_type = 1;   // GROCERY_ORDER or RESTOCK_ORDER
+  string id = 2;                  // customer_id or supplier_id
+  map<string, int32> items = 3;   // item_name -> quantity
+}
+
+// OrderReply is returned by Inventory to Ordering
+message OrderReply {
+  ReplyCode code = 1;             // OK or BAD_REQUEST
+  string message = 2;             // human-readable message
+}
+
+// ------------------------------------------------------------
+// Inventory gRPC service
+// ------------------------------------------------------------
+
+service InventoryService {
+  rpc SubmitOrder (OrderRequest) returns (OrderReply);
+}
+
