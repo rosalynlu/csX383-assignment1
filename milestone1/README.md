@@ -1,90 +1,170 @@
-Milestone 1 — Streamlit Client (Frontend)
+# Milestone 1 - Client, Ordering, and Inventory
 
-This milestone implements the client frontend for PA1.
+This milestone now implements end-to-end skeleton, including:
 
-The client is a simple Streamlit web interface that allows users to:
+- Streamlit web interface client
+- Basic Ordering microservice (Flask) using HTTP + JSON
+- Basic Inventory microservice (gRPC) using Protobuf
 
-- Submit Grocery Orders
+## Directory Structure
 
-- Submit Restock Orders
-
-- Send requests as HTTP + JSON to the Ordering (Flask) service
-
-Directory Structure
-
+```
 milestone1/
-
-│
-
 ├── client/
+│ ├── app.py # Streamlit frontend
+│ ├── requirements.txt
+│ └── README.md
+├── ordering/
+│ └── app.py # Flask Ordering service
+├── inventory/
+│ └── server.py # gRPC Inventory service
+├── proto/
+│ ├── grocery.proto # Protobuf schema
+│ ├── grocery_pb2.py
+│ ├── grocery_pb2_grpc.py
+│ └── init.py
+├── init.py
+└── README.md # This file
+```
 
-│   └── app.py        # Streamlit frontend client
+## Technologies Used
 
-│
+- Streamlit frontend
+- Ordering Service: Flask + HTTP/JSON
+- Inventory Service: gRPC + Protobuf
+- Serialization:
+  - JSON for HTTP communication
+  - Protobuf for gRPC communication
+- Deployment Environment: Chameleon Cloud VM (Ubuntu 24.04)
+- SSH access with port forwarding (tunneling)
 
-└── README.md         # This file
+## Setup
 
-Requirements
+### Requirements
 
 Activate the virtual environment:
 
+```
 source .venv/bin/activate
-
-
+```
 
 Install required packages:
 
-pip install streamlit requests
+```
+pip install flask streamlit requests grpcio grpcio-tools protobuf
+```
 
-Running the Client
+### Run Client
 
-Start the Streamlit frontend:
+You need three SSH'd terminals
 
+**Terminal 1 - Inventory gRPC Service**
+
+From repository root:
+
+```
+source .venv/bin/activate
+python milestone1/inventory/server.py
+```
+
+Expected output:
+
+```
+[Inventory gRPC] listening on 0.0.0.0:50051
+```
+
+**Terminal 2 - Ordering Flask Service**
+
+From repository root:
+
+```
+source .venv/bin/activate
+export INVENTORY_ADDR=localhost:50051
+export FLASK_APP=milestone1/ordering/app.py
+flask run --host 0.0.0.0 --port 5000
+```
+
+Expected output:
+
+```
+Running on http://127.0.0.1:5000
+```
+
+**Terminal 3 - Streamlit Client**
+
+From repository root:
+
+```
+source .venv/bin/activate
+pip install -r milestone1/client/requirements.txt
 streamlit run milestone1/client/app.py --server.address 0.0.0.0 --server.port 8501
+```
 
+Expected output:
 
+```
+You can now view your Streamlit app in your browser.
+URL: http://0.0.0.0:8501
+```
 
-Open in browser:
+**Open in browser**
 
-http://<VM-IP>:8501
+Streamlit UI:
 
-Example: http://192.168.2.2:8501
+http://localhost:8501
 
-Using the Client
+Ordering health check:
 
-1. Enter the Ordering Service URL (Flask endpoint)
+http://localhost:5000/health
 
-2. Select request type: GROCERY_ORDER or RESTOCK_ORDER
+### Use Client
 
-3. Enter Customer ID or Supplier ID
+1. Open http://localhost:8501
 
-4. Add item quantities (>0)
+2. Set Ordering Service URL to:
+   ```
+   http://localhost:5000/submit
+   ```
 
-5. Click Submit
+4. Select request type (`GROCERY_ORDER` or `RESTOCK_ORDER`)
 
-Example JSON Payload
+5. Enter Customer/Supplier ID
 
+6. Add item quantities (>0)
+
+7. Click Submit
+
+**Example JSON Output:**
+
+```
 {
-
   "request_type": "GROCERY_ORDER",
-
   "id": "c101",
-
   "items": {
-
     "milk": 2,
-
     "bread": 1
-
   }
-
 }
+```
 
-Notes
+**Example result:**
 
-- The Ordering (Flask) backend service must be running separately.
+Streamlit display:
 
-- This milestone only provides the frontend client interface and request formatting.
+```
+{
+  "code": "OK",
+  "message": "Inventory: OK (Milestone 1 stub success)"
+}
+```
 
-- The service URL can be changed in the Streamlit app input box.
+Inventory terminal will also print received request fields.
+
+### Not Implemented Yet (future milestones)
+
+- Database (Postgres)
+- Robot microservices
+- ZeroMQ + FlatBuffers
+- Pricing/nalytics services
+- Actual inventory logic
 
