@@ -11,20 +11,20 @@ This milestone now implements end-to-end skeleton, including:
 ```
 milestone1/
 ├── client/
-│ ├── app.py # Streamlit frontend
+│ ├── app.py               # Streamlit frontend
 │ ├── requirements.txt
 │ └── README.md
 ├── ordering/
-│ └── app.py # Flask Ordering service
+│ └── app.py               # Flask Ordering service
 ├── inventory/
-│ └── server.py # gRPC Inventory service
+│ └── server.py            # gRPC Inventory service
 ├── proto/
-│ ├── grocery.proto # Protobuf schema
+│ ├── grocery.proto        # Protobuf schema
 │ ├── grocery_pb2.py
 │ ├── grocery_pb2_grpc.py
 │ └── init.py
 ├── init.py
-└── README.md # This file
+└── README.md              # this file
 ```
 
 ## Technologies Used
