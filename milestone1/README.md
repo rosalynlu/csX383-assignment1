@@ -168,3 +168,6 @@ Inventory terminal will also print received request fields.
 - Pricing/nalytics services
 - Actual inventory logic
 
+### Notes
+
+Chameleon VM uses private IPs. In this case, a fourth terminal on local machine is needed for SSH port forwarding. Once tunneling is configured, all services can communicate as expected. Explicit details are not currently listed.
