@@ -53,6 +53,10 @@ Install required packages:
 ```
 pip install flask streamlit requests grpcio grpcio-tools protobuf
 ```
+OR
+```
+pip install -r requirements.txt
+```
 
 ### Run Client
 
