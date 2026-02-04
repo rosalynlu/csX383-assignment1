@@ -174,4 +174,20 @@ Inventory terminal will also print received request fields.
 
 ### Notes
 
-Chameleon VM uses private IPs. In this case, a fourth terminal on local machine is needed for SSH port forwarding. Once tunneling is configured, all services can communicate as expected. Explicit details are not currently listed.
+Chameleon VM uses private IPs. Depending on factors like other OS processes listening on/SSH unable to bind (or binding inconsistently) to relevant ports, you may run into issues trying to launch the Streamlit UI from your localhost.
+
+In this case, a fourth terminal on local machine may be needed for SSH port forwarding. If you are on the same SSH config, host alias, and bastion/jump setup/key file, you can directly use the following command.
+
+```
+ssh -N -L 8501:127.0.0.1:8501 -L 5000:127.0.0.1:5000 team-ras
+```
+
+If you aren't, you can alternatively use this:
+
+```
+ssh -N -J bastion-host cc@172.16.6.226 \
+  -L 8501:127.0.0.1:8501 \
+  -L 5000:127.0.0.1:5000
+```
+
+where ```bastion-host``` is the bastion alias or IP, and ```cc@172.16.6.226``` is the VM user and private IP.
