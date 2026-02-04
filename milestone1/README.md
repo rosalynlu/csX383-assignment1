@@ -191,3 +191,5 @@ ssh -N -J bastion-host cc@172.16.6.226 \
 ```
 
 where ```bastion-host``` is the bastion alias or IP, and ```cc@172.16.6.226``` is the VM user and private IP.
+
+From here, the rest of the instructions are the same.
