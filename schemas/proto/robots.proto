@@ -1,0 +1,21 @@
+syntax = "proto3";
+package grocery;
+
+enum RobotStatus {
+  ROBOT_OK = 0;
+  ROBOT_NOOP = 1;
+  ROBOT_ERROR = 2;
+}
+
+message RobotResult {
+  string request_id = 1;     // must match WorkOrder.request_id
+  string served_id = 2;      // customer_id or supplier_id (spec requires robot indicates which customer it served)
+  string robot_name = 3;     // bread/dairy/meat/produce/party
+  RobotStatus status = 4;    // OK / NOOP / ERROR
+  string message = 5;
+}
+
+message Ack {
+  bool ok = 1;
+  string message = 2;
+}

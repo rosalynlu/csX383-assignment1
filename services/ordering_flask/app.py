@@ -3,8 +3,8 @@ from flask import Flask, request, jsonify
 import grpc
 
 # Import the generated Protobuf / gRPC code
-from milestone1.proto import grocery_pb2
-from milestone1.proto import grocery_pb2_grpc
+from generated.proto import grocery_pb2
+from generated.proto import grocery_pb2_grpc
 
 
 app = Flask(__name__)
@@ -53,7 +53,7 @@ def submit():
     try:
         with grpc.insecure_channel(INVENTORY_ADDR) as channel:
             stub = grocery_pb2_grpc.InventoryServiceStub(channel)
-            pb_resp = stub.SubmitOrder(pb_req, timeout=5)
+            pb_resp = stub.SubmitOrder(pb_req, timeout=20)
 
         # Convert Protobuf reply to JSON
         code_str = "OK" if pb_resp.code == grocery_pb2.OK else "BAD_REQUEST"
