@@ -1,0 +1,17 @@
+namespace groceryfb;
+
+enum RequestType : byte { GROCERY_ORDER = 0, RESTOCK_ORDER = 1 }
+
+table ItemQty {
+  name:string;
+  qty:int;
+}
+
+table WorkOrder {
+  request_id:string;     // unique per order/restock
+  request_type:RequestType;
+  id:string;             // customer_id or supplier_id
+  items:[ItemQty];       // list of item quantities
+}
+
+root_type WorkOrder;

@@ -1,0 +1,17 @@
+namespace pa1;
+
+enum WorkType : byte { FETCH = 0, RESTOCK = 1 }
+
+table Item {
+  name:string;
+  qty:int;
+}
+
+table WorkOrder {
+  request_id:string;    // unique per request
+  work_type:WorkType;   // FETCH or RESTOCK
+  actor_id:string;      // customer_id or supplier_id
+  items:[Item];
+}
+
+root_type WorkOrder;

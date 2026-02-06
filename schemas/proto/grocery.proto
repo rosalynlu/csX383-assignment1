@@ -3,7 +3,7 @@ syntax = "proto3";
 package grocery;
 
 // ------------------------------------------------------------
-// Enums required by Spr26_Specification
+// Enums required by specification
 // ------------------------------------------------------------
 
 // Type of request coming from Ordering to Inventory
@@ -19,20 +19,41 @@ enum ReplyCode {
 }
 
 // ------------------------------------------------------------
-// Request and Reply messages
+// Request and Reply messages (Ordering <-> Inventory)
 // ------------------------------------------------------------
 
-// OrderRequest is sent by Ordering to Inventory
 message OrderRequest {
   RequestType request_type = 1;   // GROCERY_ORDER or RESTOCK_ORDER
   string id = 2;                  // customer_id or supplier_id
   map<string, int32> items = 3;   // item_name -> quantity
 }
 
-// OrderReply is returned by Inventory to Ordering
 message OrderReply {
   ReplyCode code = 1;             // OK or BAD_REQUEST
   string message = 2;             // human-readable message
+}
+
+// ------------------------------------------------------------
+// Robot -> Inventory messages (Milestone 2)
+// ------------------------------------------------------------
+
+enum RobotStatus {
+  ROBOT_OK = 0;
+  ROBOT_NOOP = 1;
+  ROBOT_ERROR = 2;
+}
+
+message RobotResult {
+  string request_id = 1;  // unique id assigned by Inventory when publishing work
+  string served_id = 2;   // customer_id or supplier_id being served
+  string robot_name = 3;  // bread/dairy/meat/produce/party
+  RobotStatus status = 4; // OK/NOOP/ERROR
+  string message = 5;     // debug details
+}
+
+message Ack {
+  bool ok = 1;
+  string message = 2;
 }
 
 // ------------------------------------------------------------
@@ -41,5 +62,5 @@ message OrderReply {
 
 service InventoryService {
   rpc SubmitOrder (OrderRequest) returns (OrderReply);
+  rpc ReportRobotResult (RobotResult) returns (Ack);
 }
-

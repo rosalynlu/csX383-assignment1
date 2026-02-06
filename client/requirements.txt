@@ -1,6 +1,8 @@
+flatbuffers
 flask
 streamlit
 requests
 grpcio
 grpcio-tools
 protobuf
+pyzmq
