@@ -147,7 +147,7 @@ Database initialized and seeded
 
 ### Run Client
 
-You qill run Inventory, 5 robots, Ordering, and Streamlit on eight SSH'd terminals
+You will run Inventory, 5 robots, Pricing, Ordering, and Streamlit on nine SSH'd terminals
 
 **Terminal 1 - Inventory (gRPC + ZeroMQ PUB)**
 
@@ -165,7 +165,7 @@ Expected output:
 [Inventory gRPC] listening on 0.0.0.0:50051
 ```
 
-**Terminala 2-6 - Robots (5 separate processes)**
+**Terminals 2-6 - Robots (5 separate processes)**
 
 Run one command per terminal, each from repository root:
 
@@ -221,7 +221,22 @@ Expected outputs:
 [party] gRPC connected to Inventory at 127.0.0.1:50051
 ```
 
-**Terminal 7 - Ordering (Flask)**
+**Terminal 7 - Pricing (gRPC)**
+
+From repository root:
+
+```
+source .venv/bin/activate
+python services/pricing_grpc/server.py
+```
+
+Expected output:
+
+```
+[Pricing gRPC] listening on 0.0.0.0:50053
+```
+
+**Terminal 8 - Ordering (Flask)**
 
 From repository root:
 
@@ -244,7 +259,7 @@ WARNING: This is a development server. Do not use it in a production deployment.
 Press CTRL+C to quit
 ```
 
-**Terminal 8 - Streamlit Client**
+**Terminal 9 - Streamlit Client**
 
 From repository root:
 
@@ -371,8 +386,6 @@ Milestone 2 implemented robot microservices and the messaging pipeline.
 > - Milestone 3:
 >   - Full implementation
 >   - Actual inventory logic
->   - Pricing microservice integration
->   - Inventory database integration (Postgres)
 >   - Data collection analytics and plots
 >   - Cloud multi-VM deployment
 >   - Demo and video explanation
@@ -381,7 +394,7 @@ Milestone 2 implemented robot microservices and the messaging pipeline.
 
 Chameleon VM uses private IPs. Depending on factors like other OS processes listening on/SSH unable to bind (or binding inconsistently) to relevant ports, you may run into issues trying to launch the Streamlit UI from your localhost.
 
-In this case, a ninth terminal on local machine may be needed for SSH port forwarding. If you are on the same SSH config, host alias, and bastion/jump setup/key file, you can directly use the following command.
+In this case, a tenth terminal on local machine may be needed for SSH port forwarding. If you are on the same SSH config, host alias, and bastion/jump setup/key file, you can directly use the following command.
 
 ```
 ssh -N -L 8501:127.0.0.1:8501 -L 5000:127.0.0.1:5000 team-ras
