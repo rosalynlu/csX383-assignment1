@@ -4,6 +4,10 @@ import time
 from concurrent import futures
 
 import grpc
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))

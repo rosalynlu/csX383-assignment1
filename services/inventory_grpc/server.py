@@ -8,6 +8,10 @@ from typing import Dict, Set
 
 import grpc
 import zmq
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
