@@ -2,72 +2,85 @@
 
 This repository contains the implementation of Programming Assignment 1 for CSX383 using a microservice architecture.
 
-- Streamlit web interface client
-- Flask + HTTP/JSON ordering microservice
-- gRPC + Protobuf inventory microservice
-- ZeroMQ pub-sub + FlatBuffers payload robots and gRPC/Protobuf responses
-  - Inventory publishes FETCH/RESTOCK topic via FlatBuffers payload
-  - Robots subscribe and respond back to the inventory via gRPC
+## Architecture Overview
+
+- **Streamlit** web interface client
+- **Flask + HTTP/JSON** ordering microservice
+- **gRPC + Protobuf** inventory microservice
+- **gRPC + Protobuf** pricing microservice
+- **PostgreSQL** database (inventory, pricing, analytics)
+- **ZeroMQ pub-sub + FlatBuffers** payload for robot communication
+  - Inventory publishes FETCH/RESTOCK topics via FlatBuffers payload
+  - Robots subscribe and respond back to inventory via gRPC/Protobuf
 
 ## Repository Structure
 
 ```
-csX383-assignment/
+csX383-assignment1/
 ├── client/
-│ ├── __init__.py
-│ └── requirements.txt
+│   ├── __init__.py
+│   └── requirements.txt         # Python dependencies (all services)
 ├── flatbuffers_local/
-│ ├── __init__.py
-│ └── work.fbs
+│   ├── __init__.py
+│   └── work.fbs                 # Local FlatBuffers schema backup
 ├── generated/
-│ ├── flatbuffers/
-│ │ ├── __init__.py              # FlatBuffers generated Python modules
-│ ├── proto/
-│ │ ├── __init__.py
-│ │ ├── grocery_pb2.py
-│ │ └── grocery_pb2_grpc.py
-│ └── __init__.py
+│   ├── __init__.py
+│   ├── flatbuffers/
+│   │   └── __init__.py          # FlatBuffers generated Python modules
+│   └── proto/
+│       ├── __init__.py
+│       ├── grocery_pb2.py       # Generated Protobuf Python code
+│       └── grocery_pb2_grpc.py  # Generated gRPC Python stubs
 ├── groceryfb/
-│ ├── ItemQty.py
-│ ├── RequestType.py
-│ ├── WorkOrder.py
-│ └── __init__.py
-├── ordering/
-│ └── __init__.py
-├── proto/
-│ ├── __init__.py
-│ ├── proto/grocery_pb2.py
-│ └── proto/grocery_pb2_grpc.py
+│   ├── __init__.py
+│   ├── ItemQty.py               # Generated FlatBuffers classes
+│   ├── RequestType.py
+│   └── WorkOrder.py
 ├── schemas/
-│ ├── flatbuffers/
-│ │ └── work.fbs                 # FlatBuffers schema (Inventory -> Robots)
-│ ├── proto/
-│ │ ├── grocery.proto            # Protobuf schema (Ordering <-> Inventory + Robot -> Inventory)
-│ │ └── robots.proto
+│   ├── flatbuffers/
+│   │   └── work.fbs             # FlatBuffers schema (Inventory -> Robots)
+│   ├── proto/
+│   │   ├── grocery.proto        # Protobuf schema (all gRPC services)
+│   │   └── robots.proto         # Robot-specific Protobuf definitions
+│   └── sql/
+│       ├── init_schema.sql      # PostgreSQL database schema
+│       └── seed_data.sql        # Initial data for items and pricing
+├── scripts/
+│   └── init_db.sh               # Database initialization script
 ├── services/
-│ ├── client_streamlit/
-│ │ └── app.py                   # Streamlit frontend
-│ ├── inventory_grpc/
-│ │ ├── __init__.py
-│ │ └── server.py                # Inventory gRPC server + ZeroMQ PUB
-│ ├── ordering_flask/
-│ │ └── app.py                   # Flask Ordering service (HTTP/JSON -> gRPC)
-│ ├── robots/
-│ │ └── robot.py                 # Robot worker (run 5 times with different --name)
+│   ├── client_streamlit/
+│   │   └── app.py               # Streamlit web UI client
+│   ├── inventory_grpc/
+│   │   ├── __init__.py
+│   │   └── server.py            # Inventory gRPC server + ZeroMQ PUB
+│   ├── ordering_flask/
+│   │   └── app.py               # Flask Ordering service (HTTP/JSON -> gRPC)
+│   ├── pricing_grpc/
+│   │   ├── __init__.py
+│   │   └── server.py            # Pricing gRPC server
+│   └── robots/
+│       └── robot.py             # Robot worker (run 5 instances with different names)
+├── utils/
+│   ├── __init__.py
+│   └── db.py                    # Database connection helper
+├── .env                         # Environment variables (not in git)
+├── .env.example                 # Example environment configuration
 ├── .gitignore
 └── README.md                    # This file
 ```
 
 ## Technologies Used
 
-- Streamlit frontend
-- Ordering Service: Flask + HTTP/JSON
-- Inventory Service: gRPC + Protobuf
-- Robot Communication:
-  - Inventory -> Robots: ZeroMQ PUB/SUB + FlatBuffers
-  - Robots -> Inventory: gRPC + Protobuf
-- Deployment Environment: Chameleon Cloud VM (Ubuntu 24.04)
-- Access Method: SSH with port forwarding (tunneling)
+- **Frontend**: Streamlit web UI
+- **Ordering Service**: Flask + HTTP/JSON → gRPC
+- **Inventory Service**: gRPC + Protobuf server, ZeroMQ PUB publisher
+- **Pricing Service**: gRPC + Protobuf server
+- **Robot Communication**:
+  - Inventory → Robots: ZeroMQ PUB/SUB + FlatBuffers
+  - Robots → Inventory: gRPC + Protobuf
+- **Database**: PostgreSQL (inventory, pricing, analytics)
+- **Deployment Environment**: Chameleon Cloud VM (Ubuntu 24.04)
+- **Access Method**: SSH with port forwarding (tunneling)
 
 ## Setup
 
@@ -84,10 +97,6 @@ source .venv/bin/activate
 Install required packages:
 
 ```
-pip install flask streamlit requests "grpcio>=1.78.0" "grpcio-tools>=1.78.0" protobuf pyzmq flatbuffers psycopg2-binary
-```
-OR
-```
 pip install -r client/requirements.txt
 ```
 
@@ -100,6 +109,11 @@ flatc --version
 ```
 
 ### Database Setup
+
+The PostgreSQL database stores:
+- **Items table**: Product inventory (name, category, quantity)
+- **Pricing table**: Item pricing information
+- **Analytics table**: Request tracking (request_id, served_id, request_type, duration metrics)
 
 Install PostgreSQL:
 
@@ -127,17 +141,30 @@ Copy environment configuration:
 cp .env.example .env
 ```
 
-Save the new database password in the .env file:
+Edit the .env file and set your database password:
 
 ```
 nano .env
 ```
 
-Initialize database:
+Update the following variables:
+- `DB_PASSWORD`: The password you set for the 'admin' PostgreSQL user
+- `DB_USER`: Database user (default: admin)
+- `DB_NAME`: Database name (default: grocery_db)
+- `DB_HOST`: Database host (default: localhost)
+- `DB_PORT`: Database port (default: 5432)
+
+Initialize database (creates tables and seeds initial data):
 
 ```
 bash scripts/init_db.sh
 ```
+
+This script will:
+- Create the grocery_db database
+- Create tables (items, pricing, analytics)
+- Seed initial inventory data (9 items across 5 categories)
+- Seed pricing data for all items
 
 Expected output:
 
@@ -145,9 +172,9 @@ Expected output:
 Database initialized and seeded
 ```
 
-### Run Client
+### Running the Services
 
-You will run Inventory, 5 robots, Pricing, Ordering, and Streamlit on nine SSH'd terminals
+You will run Inventory, 5 robots, Pricing, Ordering, and Streamlit on nine separate terminals (SSH'd if using remote VM)
 
 **Terminal 1 - Inventory (gRPC + ZeroMQ PUB)**
 
@@ -289,35 +316,39 @@ Ordering health check:
 
 http://localhost:5000/health
 
-### Use Client
+### Using the Client
 
-1. Open http://localhost:8501
+1. Open http://localhost:8501 in your browser
 
 2. Set Ordering Service URL to:
    ```
    http://localhost:5000/submit
    ```
 
-4. Select request type (`GROCERY_ORDER` or `RESTOCK_ORDER`)
+3. Select request type (`GROCERY_ORDER` or `RESTOCK_ORDER`)
 
-5. Enter Customer/Supplier ID
+4. Enter Customer/Supplier ID
 
-6. Add item quantities (>0) across multiple aisles
+5. Add item quantities (>0) for items across different categories
 
-7. Click Submit
+6. Click Submit
+
+7. View the response:
+   - For **GROCERY_ORDER**: Returns itemized bill with pricing and total
+   - For **RESTOCK_ORDER**: Returns confirmation of inventory restocked
 
 **Example JSON payload:**
 
-```
+```json
 {
-  "request_type":"GROCERY_ORDER"
-  "id":"abc123"
-  "items":{
-    "bread":1
-    "milk":1
-    "beef":1
-    "apples":2
-    "napkins":1
+  "request_type": "GROCERY_ORDER",
+  "id": "abc123",
+  "items": {
+    "bread": 1,
+    "milk": 1,
+    "beef": 1,
+    "apples": 2,
+    "napkins": 1
   }
 }
 ```
@@ -328,12 +359,21 @@ http://localhost:5000/health
 HTTP status: 200
 ```
 
-**Example JSON response:**
+**Example JSON response (Grocery Order):**
 
 ```
 {
-  "code":"OK"
-  "message":"OK: received all robot replies for 3a31108f-a986-40b8-8bde-2ea8043e1ddd"
+  "code": "OK",
+  "message": "OK: received all robot replies for 3a31108f-a986-40b8-8bde-2ea8043e1ddd\n\nITEMIZED BILL:\n  bread: 1 x $3.99 = $3.99\n  milk: 1 x $4.50 = $4.50\n  beef: 1 x $12.99 = $12.99\n  apples: 2 x $2.99 = $5.98\n  napkins: 1 x $4.99 = $4.99\nTOTAL: $32.45"
+}
+```
+
+**Example JSON response (Restock Order):**
+
+```
+{
+  "code": "OK",
+  "message": "OK: received all robot replies for 5b42119g-b997-51c9-9cef-3fb9154f2eee"
 }
 ```
 
@@ -381,14 +421,9 @@ Milestone 1 implemented an end-to-end skeleton with the web interface client and
 
 Milestone 2 implemented robot microservices and the messaging pipeline.
 
-> Not Implemented Yet (future milestones):
-> - Updated Streamlit UI (currently is outdated and the interface as Milestone 1)
-> - Milestone 3:
->   - Full implementation
->   - Actual inventory logic
->   - Data collection analytics and plots
->   - Cloud multi-VM deployment
->   - Demo and video explanation
+Milestone 3 in progress:
+- In progress: Collecting data from experiments, plots, cloud deployment, streamlit UI updates, demo video
+- Complete: Full implementation of all services
 
 ### Notes
 
