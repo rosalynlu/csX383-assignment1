@@ -84,7 +84,7 @@ source .venv/bin/activate
 Install required packages:
 
 ```
-pip install flask streamlit requests grpcio grpcio-tools protobuf pyzmq flatbuffers
+pip install flask streamlit requests grpcio grpcio-tools protobuf pyzmq flatbuffers psycopg2-binary
 ```
 OR
 ```
@@ -97,6 +97,46 @@ Install FlatBuffers compiler (flatc):
 sudo apt update
 sudo apt install -y flatbuffers-compiler
 flatc --version
+```
+
+### Database Setup
+
+Install PostgreSQL:
+
+```
+sudo apt update
+sudo apt install -y postgresql postgresql-contrib
+```
+
+Start PostgreSQL service:
+
+```
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+```
+
+Create database user (use password from .env.example):
+
+```
+sudo -u postgres createuser -s admin
+```
+
+Copy environment configuration:
+
+```
+cp .env.example .env
+```
+
+Initialize database:
+
+```
+bash scripts/init_db.sh
+```
+
+Expected output:
+
+```
+Database initialized and seeded
 ```
 
 ### Run Client
