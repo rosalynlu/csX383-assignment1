@@ -84,7 +84,7 @@ source .venv/bin/activate
 Install required packages:
 
 ```
-pip install flask streamlit requests grpcio grpcio-tools protobuf pyzmq flatbuffers psycopg2-binary
+pip install flask streamlit requests "grpcio>=1.78.0" "grpcio-tools>=1.78.0" protobuf pyzmq flatbuffers psycopg2-binary
 ```
 OR
 ```
@@ -115,16 +115,22 @@ sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
 
-Create database user (use password from .env.example):
+Create database user and set password:
 
 ```
-sudo -u postgres createuser -s admin
+sudo -u postgres createuser -s --pwprompt admin
 ```
 
 Copy environment configuration:
 
 ```
 cp .env.example .env
+```
+
+Save the new database password in the .env file:
+
+```
+nano .env
 ```
 
 Initialize database:
