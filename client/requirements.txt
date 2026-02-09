@@ -6,3 +6,4 @@ grpcio
 grpcio-tools
 protobuf
 pyzmq
+psycopg2-binary
