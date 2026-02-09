@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import uuid
 import threading
@@ -8,14 +9,21 @@ from typing import Dict, Set
 import grpc
 import zmq
 
+# Add project root to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from generated.proto import grocery_pb2
 from generated.proto import grocery_pb2_grpc
 
 # FlatBuffers generated modules
 from groceryfb import WorkOrder, RequestType, ItemQty
 
+# Database helper
+from utils.db import get_db_connection
+
 
 ZMQ_PUB_ADDR = os.environ.get("ZMQ_PUB_ADDR", "tcp://0.0.0.0:5556")
+PRICING_GRPC_ADDR = os.environ.get("PRICING_GRPC_ADDR", "localhost:50053")
 
 
 def build_workorder_fb(request_id: str, request_type: int, served_id: str, items: Dict[str, int]) -> bytes:
@@ -110,10 +118,48 @@ class InventoryService(grocery_pb2_grpc.InventoryServiceServicer):
 
         request_id = str(uuid.uuid4())
         served_id = request.id
+        items_dict = dict(request.items)
+        start_time = time.time()
 
         print(f"\n=== Inventory received order request_id={request_id} type={request.request_type} id={served_id} ===")
-        items_dict = dict(request.items)
         print("items:", items_dict)
+
+        # Record analytics
+        try:
+            with get_db_connection() as conn:
+                request_type = 'GROCERY_ORDER' if request.request_type == grocery_pb2.GROCERY_ORDER else 'RESTOCK_ORDER'
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO analytics (request_id, served_id, request_type, start_time)
+                    VALUES (%s, %s, %s, NOW())
+                """, 
+                (request_id, served_id, request_type))
+        except Exception as e:
+            print(f"Analytics error: {e}")
+
+        # GROCERY_ORDER: check and deduct inventory
+        if request.request_type == grocery_pb2.GROCERY_ORDER:
+            try:
+                with get_db_connection() as conn:
+                    cur = conn.cursor()
+
+                    # Check all items are available
+                    for item_name, qty_needed in items_dict.items():
+                        cur.execute("SELECT quantity FROM items WHERE name = %s", (item_name,))
+                        row = cur.fetchone()
+                        if not row or row[0] < qty_needed:
+                            available = row[0] if row else 0
+                            return grocery_pb2.OrderReply(
+                                code=grocery_pb2.BAD_REQUEST,
+                                message=f"Insufficient inventory: {item_name} (need {qty_needed}, have {available})"
+                            )
+
+                    # Deduct inventory
+                    for item_name, qty in items_dict.items():
+                        cur.execute("UPDATE items SET quantity = quantity - %s WHERE name = %s", (qty, item_name))
+
+            except Exception as e:
+                return grocery_pb2.OrderReply(code=grocery_pb2.BAD_REQUEST, message=f"DB error: {e}")
 
         # Prepare to wait for robots
         self.tracker.init_request(request_id)
@@ -130,12 +176,71 @@ class InventoryService(grocery_pb2_grpc.InventoryServiceServicer):
 
         # Wait for all 5 robots to respond (timeout to avoid hanging forever)
         ok = self.tracker.wait_all(request_id, timeout_s=10.0)
+
         if not ok:
+            # Robot timeout - rollback inventory if needed
+            if request.request_type == grocery_pb2.GROCERY_ORDER:
+                try:
+                    with get_db_connection() as conn:
+                        cur = conn.cursor()
+                        for item_name, qty in items_dict.items():
+                            cur.execute("UPDATE items SET quantity = quantity + %s WHERE name = %s", (qty, item_name))
+                except Exception as e:
+                    print(f"CRITICAL: Failed to rollback inventory: {e}")
+
             self.tracker.cleanup(request_id)
             return grocery_pb2.OrderReply(code=grocery_pb2.BAD_REQUEST, message="Timed out waiting for all robots")
 
+        # For RESTOCK_ORDER: add inventory after robots complete
+        if request.request_type == grocery_pb2.RESTOCK_ORDER:
+            try:
+                with get_db_connection() as conn:
+                    cur = conn.cursor()
+                    for item_name, qty in items_dict.items():
+                        cur.execute("UPDATE items SET quantity = quantity + %s WHERE name = %s", (qty, item_name))
+            except Exception as e:
+                print(f"Failed to add restock inventory: {e}")
+
+        # For GROCERY_ORDER: get pricing from Pricing service
+        price_message = ""
+        if request.request_type == grocery_pb2.GROCERY_ORDER:
+            try:
+                print(f"[Inventory] Requesting price from Pricing service for {items_dict}")
+                with grpc.insecure_channel(PRICING_GRPC_ADDR) as channel:
+                    pricing_stub = grocery_pb2_grpc.PricingServiceStub(channel)
+                    price_request = grocery_pb2.PriceRequest(items=items_dict)
+                    price_reply = pricing_stub.GetPrice(price_request)
+
+                    if price_reply.code == grocery_pb2.OK:
+                        price_message = f"\n\nITEMIZED BILL:\n"
+                        for item_price in price_reply.item_prices:
+                            price_message += f"  {item_price.name}: {item_price.quantity} x ${item_price.unit_price:.2f} = ${item_price.subtotal:.2f}\n"
+                        price_message += f"TOTAL: ${price_reply.total:.2f}"
+                        print(f"[Inventory] Received pricing: ${price_reply.total:.2f}")
+                    else:
+                        price_message = f"\nPricing error: {price_reply.message}"
+                        print(f"[Inventory] Pricing service error: {price_reply.message}")
+
+            except Exception as e:
+                price_message = f"\nPricing service unavailable: {e}"
+                print(f"[Inventory] Failed to connect to Pricing service: {e}")
+
+        # Record analytics
+        try:
+            with get_db_connection() as conn:
+                cur = conn.cursor()
+                duration_ms = int((time.time() - start_time) * 1000)
+                cur.execute("""
+                    UPDATE analytics
+                    SET end_time = NOW(), total_duration_ms = %s
+                    WHERE request_id = %s
+                """, (duration_ms, request_id))
+        except Exception as e:
+            print(f"Analytics error: {e}")
+
         self.tracker.cleanup(request_id)
-        return grocery_pb2.OrderReply(code=grocery_pb2.OK, message=f"OK: received all robot replies for {request_id}")
+        success_message = f"OK: received all robot replies for {request_id}{price_message}"
+        return grocery_pb2.OrderReply(code=grocery_pb2.OK, message=success_message)
 
     def ReportRobotResult(self, request, context):
         # request is RobotResult
