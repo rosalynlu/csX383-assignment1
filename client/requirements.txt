@@ -2,7 +2,9 @@ flatbuffers
 flask
 streamlit
 requests
-grpcio
-grpcio-tools
+grpcio>=1.78.0
+grpcio-tools>=1.78.0
 protobuf
 pyzmq
+psycopg2-binary
+python-dotenv

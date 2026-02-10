@@ -57,10 +57,36 @@ message Ack {
 }
 
 // ------------------------------------------------------------
-// Inventory gRPC service
+// Pricing messages
+// ------------------------------------------------------------
+
+message PriceRequest {
+  map<string, int32> items = 1;  // item_name -> quantity
+}
+
+message ItemPrice {
+  string name = 1;
+  int32 quantity = 2;
+  double unit_price = 3;
+  double subtotal = 4;
+}
+
+message PriceReply {
+  ReplyCode code = 1;
+  string message = 2;
+  repeated ItemPrice item_prices = 3;
+  double total = 4;
+}
+
+// ------------------------------------------------------------
+// gRPC services
 // ------------------------------------------------------------
 
 service InventoryService {
   rpc SubmitOrder (OrderRequest) returns (OrderReply);
   rpc ReportRobotResult (RobotResult) returns (Ack);
+}
+
+service PricingService {
+  rpc GetPrice (PriceRequest) returns (PriceReply);
 }

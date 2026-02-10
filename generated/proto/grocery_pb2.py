@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rgrocery.proto\x12\x07grocery\"\xa5\x01\n\x0cOrderRequest\x12*\n\x0crequest_type\x18\x01 \x01(\x0e\x32\x14.grocery.RequestType\x12\n\n\x02id\x18\x02 \x01(\t\x12/\n\x05items\x18\x03 \x03(\x0b\x32 .grocery.OrderRequest.ItemsEntry\x1a,\n\nItemsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"?\n\nOrderReply\x12 \n\x04\x63ode\x18\x01 \x01(\x0e\x32\x12.grocery.ReplyCode\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x7f\n\x0bRobotResult\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x11\n\tserved_id\x18\x02 \x01(\t\x12\x12\n\nrobot_name\x18\x03 \x01(\t\x12$\n\x06status\x18\x04 \x01(\x0e\x32\x14.grocery.RobotStatus\x12\x0f\n\x07message\x18\x05 \x01(\t\"\"\n\x03\x41\x63k\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t*3\n\x0bRequestType\x12\x11\n\rGROCERY_ORDER\x10\x00\x12\x11\n\rRESTOCK_ORDER\x10\x01*$\n\tReplyCode\x12\x06\n\x02OK\x10\x00\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10\x01*<\n\x0bRobotStatus\x12\x0c\n\x08ROBOT_OK\x10\x00\x12\x0e\n\nROBOT_NOOP\x10\x01\x12\x0f\n\x0bROBOT_ERROR\x10\x02\x32\x86\x01\n\x10InventoryService\x12\x39\n\x0bSubmitOrder\x12\x15.grocery.OrderRequest\x1a\x13.grocery.OrderReply\x12\x37\n\x11ReportRobotResult\x12\x14.grocery.RobotResult\x1a\x0c.grocery.Ackb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rgrocery.proto\x12\x07grocery\"\xa5\x01\n\x0cOrderRequest\x12*\n\x0crequest_type\x18\x01 \x01(\x0e\x32\x14.grocery.RequestType\x12\n\n\x02id\x18\x02 \x01(\t\x12/\n\x05items\x18\x03 \x03(\x0b\x32 .grocery.OrderRequest.ItemsEntry\x1a,\n\nItemsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"?\n\nOrderReply\x12 \n\x04\x63ode\x18\x01 \x01(\x0e\x32\x12.grocery.ReplyCode\x12\x0f\n\x07message\x18\x02 \x01(\t\"\x7f\n\x0bRobotResult\x12\x12\n\nrequest_id\x18\x01 \x01(\t\x12\x11\n\tserved_id\x18\x02 \x01(\t\x12\x12\n\nrobot_name\x18\x03 \x01(\t\x12$\n\x06status\x18\x04 \x01(\x0e\x32\x14.grocery.RobotStatus\x12\x0f\n\x07message\x18\x05 \x01(\t\"\"\n\x03\x41\x63k\x12\n\n\x02ok\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t\"m\n\x0cPriceRequest\x12/\n\x05items\x18\x01 \x03(\x0b\x32 .grocery.PriceRequest.ItemsEntry\x1a,\n\nItemsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"Q\n\tItemPrice\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08quantity\x18\x02 \x01(\x05\x12\x12\n\nunit_price\x18\x03 \x01(\x01\x12\x10\n\x08subtotal\x18\x04 \x01(\x01\"w\n\nPriceReply\x12 \n\x04\x63ode\x18\x01 \x01(\x0e\x32\x12.grocery.ReplyCode\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\'\n\x0bitem_prices\x18\x03 \x03(\x0b\x32\x12.grocery.ItemPrice\x12\r\n\x05total\x18\x04 \x01(\x01*3\n\x0bRequestType\x12\x11\n\rGROCERY_ORDER\x10\x00\x12\x11\n\rRESTOCK_ORDER\x10\x01*$\n\tReplyCode\x12\x06\n\x02OK\x10\x00\x12\x0f\n\x0b\x42\x41\x44_REQUEST\x10\x01*<\n\x0bRobotStatus\x12\x0c\n\x08ROBOT_OK\x10\x00\x12\x0e\n\nROBOT_NOOP\x10\x01\x12\x0f\n\x0bROBOT_ERROR\x10\x02\x32\x86\x01\n\x10InventoryService\x12\x39\n\x0bSubmitOrder\x12\x15.grocery.OrderRequest\x1a\x13.grocery.OrderReply\x12\x37\n\x11ReportRobotResult\x12\x14.grocery.RobotResult\x1a\x0c.grocery.Ack2H\n\x0ePricingService\x12\x36\n\x08GetPrice\x12\x15.grocery.PriceRequest\x1a\x13.grocery.PriceReplyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,12 +33,14 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ORDERREQUEST_ITEMSENTRY']._loaded_options = None
   _globals['_ORDERREQUEST_ITEMSENTRY']._serialized_options = b'8\001'
-  _globals['_REQUESTTYPE']._serialized_start=424
-  _globals['_REQUESTTYPE']._serialized_end=475
-  _globals['_REPLYCODE']._serialized_start=477
-  _globals['_REPLYCODE']._serialized_end=513
-  _globals['_ROBOTSTATUS']._serialized_start=515
-  _globals['_ROBOTSTATUS']._serialized_end=575
+  _globals['_PRICEREQUEST_ITEMSENTRY']._loaded_options = None
+  _globals['_PRICEREQUEST_ITEMSENTRY']._serialized_options = b'8\001'
+  _globals['_REQUESTTYPE']._serialized_start=739
+  _globals['_REQUESTTYPE']._serialized_end=790
+  _globals['_REPLYCODE']._serialized_start=792
+  _globals['_REPLYCODE']._serialized_end=828
+  _globals['_ROBOTSTATUS']._serialized_start=830
+  _globals['_ROBOTSTATUS']._serialized_end=890
   _globals['_ORDERREQUEST']._serialized_start=27
   _globals['_ORDERREQUEST']._serialized_end=192
   _globals['_ORDERREQUEST_ITEMSENTRY']._serialized_start=148
@@ -49,6 +51,16 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_ROBOTRESULT']._serialized_end=386
   _globals['_ACK']._serialized_start=388
   _globals['_ACK']._serialized_end=422
-  _globals['_INVENTORYSERVICE']._serialized_start=578
-  _globals['_INVENTORYSERVICE']._serialized_end=712
+  _globals['_PRICEREQUEST']._serialized_start=424
+  _globals['_PRICEREQUEST']._serialized_end=533
+  _globals['_PRICEREQUEST_ITEMSENTRY']._serialized_start=148
+  _globals['_PRICEREQUEST_ITEMSENTRY']._serialized_end=192
+  _globals['_ITEMPRICE']._serialized_start=535
+  _globals['_ITEMPRICE']._serialized_end=616
+  _globals['_PRICEREPLY']._serialized_start=618
+  _globals['_PRICEREPLY']._serialized_end=737
+  _globals['_INVENTORYSERVICE']._serialized_start=893
+  _globals['_INVENTORYSERVICE']._serialized_end=1027
+  _globals['_PRICINGSERVICE']._serialized_start=1029
+  _globals['_PRICINGSERVICE']._serialized_end=1101
 # @@protoc_insertion_point(module_scope)

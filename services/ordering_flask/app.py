@@ -1,6 +1,10 @@
 import os
 from flask import Flask, request, jsonify
 import grpc
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Import the generated Protobuf / gRPC code
 from generated.proto import grocery_pb2
