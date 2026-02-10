@@ -376,18 +376,11 @@ HTTP status: 200
 
 **Example JSON response (Grocery Order):**
 
-```
+```json
 {
-  "code":"OK"
-  "message":"OK: received all robot replies for 3a31108f-a986-40b8-8bde-2ea8043e1ddd
-  
-  ITEMIZED BILL:
-    apples: 2 x $2.99 = $5.98
-    napkins: 1 x $4.99 = $4.99
-    bread: 1 x $3.99 = $3.99
-    milk: 1 x $4.50 = $4.50
-    beef: 1 x $12.99 = $12.99
-  TOTAL: $32.45"
+  "code": "OK"
+  "message":
+  "OK: received all robot replies for 3a31108f-a986-40b8-8bde-2ea8043e1ddd\n\nITEMIZED BILL:\n\tapples: 2 x $2.99 = $5.98\n\tnapkins: 1 x $4.99 = $4.99\n\tbread: 1 x $3.99 = $3.99\n\tmilk: 1 x $4.50 = $4.50\n\tbeef: 1 x $12.99 = $12.99\nTOTAL: $32.45"
 }
 ```
 
