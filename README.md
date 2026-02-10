@@ -88,7 +88,7 @@ csX383-assignment1/
 
 SSH into the VM from your local machine (using your SSH config + bastion setup)
 
-Activate the virtual environment:
+From the repository root, activate the virtual environment:
 
 ```
 source .venv/bin/activate
@@ -129,7 +129,7 @@ sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
 
-Create database user and set password:
+Create database user and set password (skip this step if already created):
 
 ```
 sudo -u postgres createuser -s --pwprompt admin
@@ -148,7 +148,7 @@ nano .env
 ```
 
 Update the following variables:
-- `DB_PASSWORD`: The password you set for the 'admin' PostgreSQL user
+- `DB_PASSWORD`: The password you set for your PostgreSQL user
 - `DB_USER`: Database user (default: admin)
 - `DB_NAME`: Database name (default: grocery_db)
 - `DB_HOST`: Database host (default: localhost)
@@ -172,13 +172,22 @@ Expected output:
 Database initialized and seeded
 ```
 
-### Running the Services
+### Deployment
 
-You will run Inventory, 5 robots, Pricing, Ordering, and Streamlit on nine separate terminals (SSH'd if using remote VM)
+You will run Inventory, 5 robots, Pricing, Ordering, and Streamlit on the cloud VM.
 
-**Terminal 1 - Inventory (gRPC + ZeroMQ PUB)**
+**Install and start tmux**
 
-From repository root:
+```
+sudo apt install -y tmux
+tmux new -s pa1
+```
+
+where `pa1` is the user-defined tmux session name.
+
+Once inside tmux, create windows for each service. After each command, the terminal will hang (this is expected). To open a new window, `CTRL-B + C` or `CTRL-B + : + new-window`. The new window should already be in the repository root.
+
+**Window 1 - Inventory (gRPC + ZeroMQ PUB)**
 
 ```
 source .venv/bin/activate
@@ -192,9 +201,9 @@ Expected output:
 [Inventory gRPC] listening on 0.0.0.0:50051
 ```
 
-**Terminals 2-6 - Robots (5 separate processes)**
+**Windows 2-6 - Robots (5 separate processes)**
 
-Run one command per terminal, each from repository root:
+Run one command per window:
 
 ```
 source .venv/bin/activate
@@ -248,9 +257,7 @@ Expected outputs:
 [party] gRPC connected to Inventory at 127.0.0.1:50051
 ```
 
-**Terminal 7 - Pricing (gRPC)**
-
-From repository root:
+**Window 7 - Pricing (gRPC)**
 
 ```
 source .venv/bin/activate
@@ -263,9 +270,7 @@ Expected output:
 [Pricing gRPC] listening on 0.0.0.0:50053
 ```
 
-**Terminal 8 - Ordering (Flask)**
-
-From repository root:
+**Window 8 - Ordering (Flask)**
 
 ```
 source .venv/bin/activate
@@ -286,9 +291,7 @@ WARNING: This is a development server. Do not use it in a production deployment.
 Press CTRL+C to quit
 ```
 
-**Terminal 9 - Streamlit Client**
-
-From repository root:
+**Window 9 - Streamlit Client**
 
 ```
 source .venv/bin/activate
@@ -305,6 +308,18 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 
   URL: http://0.0.0.0:8501
 ```
+
+**Detach tmux**
+
+To leave tmux running, `CTRL-B + D`.
+
+To reattach later:
+
+```
+tmux attach -t pa1
+```
+
+where `pa1` is the same user-defined tmux session name as when it was created.
 
 **Open in browser**
 
@@ -363,8 +378,16 @@ HTTP status: 200
 
 ```
 {
-  "code": "OK",
-  "message": "OK: received all robot replies for 3a31108f-a986-40b8-8bde-2ea8043e1ddd\n\nITEMIZED BILL:\n  bread: 1 x $3.99 = $3.99\n  milk: 1 x $4.50 = $4.50\n  beef: 1 x $12.99 = $12.99\n  apples: 2 x $2.99 = $5.98\n  napkins: 1 x $4.99 = $4.99\nTOTAL: $32.45"
+  "code":"OK"
+  "message":"OK: received all robot replies for 3a31108f-a986-40b8-8bde-2ea8043e1ddd
+  
+  ITEMIZED BILL:
+    apples: 2 x $2.99 = $5.98
+    napkins: 1 x $4.99 = $4.99
+    bread: 1 x $3.99 = $3.99
+    milk: 1 x $4.50 = $4.50
+    beef: 1 x $12.99 = $12.99
+  TOTAL: $32.45"
 }
 ```
 
@@ -422,27 +445,20 @@ Milestone 1 implemented an end-to-end skeleton with the web interface client and
 Milestone 2 implemented robot microservices and the messaging pipeline.
 
 Milestone 3 in progress:
+- In progress: UI updates
 - In progress: Collecting data from experiments, plots, cloud deployment, streamlit UI updates, demo video
 - Complete: Full implementation of all services
 
 ### Notes
 
-Chameleon VM uses private IPs. Depending on factors like other OS processes listening on/SSH unable to bind (or binding inconsistently) to relevant ports, you may run into issues trying to launch the Streamlit UI from your localhost.
-
-In this case, a tenth terminal on local machine may be needed for SSH port forwarding. If you are on the same SSH config, host alias, and bastion/jump setup/key file, you can directly use the following command.
+To run on a floating IP on Chameleon Cloud, on a separate terminal on your local machine (before opening in browser):
 
 ```
-ssh -N -L 8501:127.0.0.1:8501 -L 5000:127.0.0.1:5000 team-ras
+ssh -i ~/.ssh/VM-key.pem \
+  -N -L 8501:127.0.0.1:8501 -L 5000:127.0.0.1:5000 \
+  cc@129.114.24.252
 ```
 
-If you aren't, you can alternatively use this:
-
-```
-ssh -N -J bastion-host cc@172.16.6.226 \
-  -L 8501:127.0.0.1:8501 \
-  -L 5000:127.0.0.1:5000
-```
-
-where ```bastion-host``` is the bastion alias or IP, and ```cc@172.16.6.226``` is the VM user and private IP.
+where `VM-key.pem` is the virtual machine key (`team-ras-ssh-keypair.pem`).
 
 From here, the rest of the instructions are the same.
