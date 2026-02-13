@@ -34,7 +34,7 @@ message OrderReply {
 }
 
 // ------------------------------------------------------------
-// Robot -> Inventory messages (Milestone 2)
+// Robot -> Inventory messages
 // ------------------------------------------------------------
 
 enum RobotStatus {
