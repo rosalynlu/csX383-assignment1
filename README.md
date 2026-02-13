@@ -451,7 +451,7 @@ Added a latency analytics visualization pipeline using PostgreSQL analytics data
 **Generate Latency Data**
 1. Start all services
 2. Open Streamlit UI
-3. Submit approximately 20–50 orders
+3. Submit approximately 20-50 orders
 
 **Running**
 
