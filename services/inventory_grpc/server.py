@@ -103,7 +103,6 @@ class RobotTracker:
 
 class InventoryService(grocery_pb2_grpc.InventoryServiceServicer):
     """
-    Milestone 2:
     - Receives gRPC order from Ordering
     - Publishes FlatBuffers WorkOrder to robots via ZeroMQ PUB/SUB
     - Receives RobotResult callbacks via gRPC
