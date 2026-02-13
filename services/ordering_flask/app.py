@@ -32,7 +32,7 @@ def parse_request_type(rt: str):
 def submit():
     data = request.get_json(force=True)  # Streamlit sends JSON
 
-    # Basic validation (Milestone 1)
+    # Validation
     req_type_str = str(data.get("request_type", "")).strip()
     id_value = str(data.get("id", "")).strip()
     items = data.get("items", {})
