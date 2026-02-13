@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # ------------------------------------------------------------
-# Milestone 1 Streamlit Client
+# Grocery Store Streamlit Client
 #
 # Purpose:
 #   - Provide a simple browser UI for Grocery and Restock orders
@@ -10,8 +10,8 @@ import requests
 #   - Display the JSON response returned by Ordering
 # ------------------------------------------------------------
 
-st.set_page_config(page_title="Milestone 1 Client", layout="centered")
-st.title("CSX383 PA1 — Milestone 1 Client (Streamlit)")
+st.set_page_config(page_title="Grocery Store Client", layout="centered")
+st.title("CSX383 PA1 — Grocery Store Client (Streamlit)")
 st.caption("This client sends HTTP+JSON to the Ordering (Flask) service.")
 
 # URL of the Ordering microservice (Flask)
@@ -28,7 +28,7 @@ request_type = st.selectbox("Request Type", ["GROCERY_ORDER", "RESTOCK_ORDER"])
 id_label = "Customer ID" if request_type == "GROCERY_ORDER" else "Supplier ID"
 id_value = st.text_input(id_label)
 
-# Simple fixed catalog for Milestone 1 (can expand later)
+# Catalog
 st.subheader("Items (enter qty > 0)")
 items_catalog = [
     "bread", "milk", "eggs",
@@ -53,7 +53,7 @@ st.json(payload)
 # When user clicks Submit, POST request is sent to Flask Ordering service
 if st.button("Submit"):
 
-    # Basic validation for Milestone 1 demo
+    # Validation
     if not ordering_url.strip():
         st.error("Ordering Service URL is required.")
         st.stop()
