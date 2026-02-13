@@ -8,3 +8,4 @@ protobuf
 pyzmq
 psycopg2-binary
 python-dotenv
+matplotlib
